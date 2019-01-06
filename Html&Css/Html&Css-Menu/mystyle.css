@@ -1,0 +1,38 @@
+.menu {
+    list-style-type :none;
+    margin: 0;
+    padding: 0;
+    background-color: #D5B0AC;
+    text-align: center;
+}
+.menu span{
+    display: inline-block;
+    width: 100px;
+    height: 30px;
+    color: #402E2A;
+    font-weight: bold;
+    line-height: 180%;
+}
+.menu span:hover{
+    background-color: #9CD08F;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+.vertical-menu{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.vertical-menu span{
+    display: block;
+    color: #402E2A;
+    background-color: #D5B0AC;
+    width:100px;
+    height:30px;
+    text-decoration: none;
+}
+.vertical-menu span:hover{
+    background-color: #9CD08F;
+    color: #FFFFFF;
+    cursor: pointer;
+}
