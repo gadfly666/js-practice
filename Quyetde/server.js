@@ -7,7 +7,16 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
+app.use("/", express.static("view"))
+
 app.get("/", (req, res) => {
+
+    res.sendFile(__dirname + "/view/answer.html");
+
+    // res.sendFile(__dirname + "/view/answer.html");
+});
+
+app.get("/question", (req, res) => {
     let questionList = new Array();
     try {
         questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
@@ -15,27 +24,29 @@ app.get("/", (req, res) => {
         console.log(error);
     }
 
+    let ranQuestion;
+
     if (questionList.length == 0) {
         res.send("Không có câu hỏi")
     } else {
         const index = Math.floor(Math.random() * questionList.length);
-        const ranQuestion = questionList[index];
-    
-        res.send(`
-            <h1>${ranQuestion.content}</h1>
-            <a href = "/vote/${ranQuestion.id}/${0}"><button>Sai</button></a>
-            <a href = "/vote/${ranQuestion.id}/${1}"><button>Đúng</button></a>
-            <a href = "/result/${ranQuestion.id}"><button>Kết quả vote</button></a>
-            <a href = "/"><button>Xem câu hỏi khác</button></a>
-        `);
+        ranQuestion = questionList[index];
     }
 
-    // res.sendFile(__dirname + "/view/answer.html");
+    if (ranQuestion != null) {
+        res.send({
+            question: ranQuestion
+        });
+    }
 });
 
-app.get("/vote/:questionId/:vote", (req, res) => {
-    const { questionId } = req.params;
-    const { vote } = req.params;
+app.post("/vote", (req, res) => {
+
+    console.log("Hello");
+    const {
+        questionId,
+        vote
+    } = req.body;
 
     let questionList = new Array();
     try {
@@ -45,22 +56,24 @@ app.get("/vote/:questionId/:vote", (req, res) => {
     }
 
     const question = questionList.filter(item => item.id == questionId)[0];
-    if(question != null){
-        if(vote == 1){
-            question.yes +=1;
-        }else if(vote == 0){
-            question.no +=1;
-        }else{
+    if (question != null) {
+        if (vote == 1) {
+            question.yes += 1;
+        } else if (vote == 0) {
+            question.no += 1;
+        } else {
             console.log("Vote error");
         }
     }
 
     fs.writeFileSync("./data.json", JSON.stringify(questionList));
-    res.redirect("/");
+    res.send("abc")
 });
 
 app.get("/result/:questionId", (req, res) => {
-    const { questionId } = req.params;
+    const {
+        questionId
+    } = req.params;
     let questionList = new Array();
     try {
         questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
@@ -69,7 +82,7 @@ app.get("/result/:questionId", (req, res) => {
     }
     const question = questionList.filter(item => item.id == questionId)[0];
     const totalVote = question.yes + question.no;
-    const yesByPercent = Math.round((question.yes)/totalVote*100);
+    const yesByPercent = Math.round((question.yes) / totalVote * 100);
     const noByPercent = 100 - yesByPercent;
     res.send(`
         <h1>${question.content}</h1>
