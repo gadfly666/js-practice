@@ -5,14 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../css/ask.css">
     <title>Quyết đê</title>
 </head>
 
 <body>
-    <h1>Hãy hỏi cộng đồng một câu hỏi đúng/sai hoặc có/không?</h1>
-    <textarea name="" class="questionContent" cols="30" rows="10"></textarea>
-    <p>Còn 200/200 kí tự</p>
-    <button class="submit-button" type="submit">Gửi</button>
+    <div class = "container">
+        <h1>Hãy hỏi cộng đồng một câu hỏi đúng/sai hoặc có/không?</h1>
+        <textarea name="" class="questionContent" maxlength="200" rows="10"></textarea>
+        <p class="text-counter" id="counter">Còn 200/200 kí tự</p>
+        <button class="submit-button" type="submit" id="btn-ask">Gửi</button>    
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>

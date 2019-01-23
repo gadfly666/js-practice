@@ -1,0 +1,11 @@
+.question-content{
+    text-align: center;
+}
+.vote-button-container{
+    display: flex;
+    justify-content: space-around;
+}
+.result-button-container{
+    display: flex;
+    justify-content: center;
+}

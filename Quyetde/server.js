@@ -2,126 +2,175 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
+const QuestionModel = require('./models/question');
+
+mongoose.connect('mongodb://localhost:27017/web18', (error)=>{
+    if(error){
+        console.log(error.message);
+    }
+    console.log("Connected to mongo db");
+});
 
 app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-app.use("/", express.static("view"))
+app.use(bodyParser.json());
 
+app.use("/", express.static("public"))
+//router for page
 app.get("/", (req, res) => {
 
-    res.sendFile(__dirname + "/view/answer.html");
+    res.sendFile(__dirname + "/public/html/index.html");
 
     // res.sendFile(__dirname + "/view/answer.html");
 });
 
-app.get("/question", (req, res) => {
-    let questionList = new Array();
+app.get("/ask", (req, res) => {
+    res.sendFile(__dirname + "/public/html/ask.html");
+});
+
+app.get("/answer/:questionId", (req, res) => {
+    res.sendFile(__dirname + "/public/html/answer.html");
+});
+//router for json data
+app.post("/api/question", async (req, res) => {
     try {
-        questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
+        const {
+            questionContent
+        } = req.body;
+
+        const question = {
+            content: questionContent,
+            yes:0,
+            no:0,
+            createdAt: new Date(),
+        }
+        
+        
+        const result = await QuestionModel.create([question]);
+        console.log(result);
+
+        res.json({
+            success: true,
+        });
     } catch (error) {
-        console.log(error);
-    }
-
-    let ranQuestion;
-
-    if (questionList.length == 0) {
-        res.send("Không có câu hỏi")
-    } else {
-        const index = Math.floor(Math.random() * questionList.length);
-        ranQuestion = questionList[index];
-    }
-
-    if (ranQuestion != null) {
-        res.send({
-            question: ranQuestion
+        res.json({
+            success: false,
+            message: error,
+            message,
         });
     }
 });
 
-app.post("/vote", (req, res) => {
-
-    console.log("Hello");
-    const {
-        questionId,
-        vote
-    } = req.body;
-
-    let questionList = new Array();
+app.get("/api/question/getRandomQuestion", async (req, res) => {
     try {
-        questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
-    } catch (error) {
-        console.log(error);
-    }
+        let questionList = new Array();
 
-    const question = questionList.filter(item => item.id == questionId)[0];
-    if (question != null) {
-        if (vote == 1) {
-            question.yes += 1;
-        } else if (vote == 0) {
-            question.no += 1;
+        await QuestionModel.find(function (err, questions) {
+            if (err) return console.error(err);
+            questionList = questions;
+          })
+
+        let ranQuestion;
+
+        if (questionList.length == 0) {
+            res.send("Không có câu hỏi")
         } else {
-            console.log("Vote error");
+            const index = Math.floor(Math.random() * questionList.length);
+            ranQuestion = questionList[index];
         }
-    }
 
-    fs.writeFileSync("./data.json", JSON.stringify(questionList));
-    res.send("abc")
+        res.json(ranQuestion);
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message,
+        });
+    }
 });
 
-app.get("/result/:questionId", (req, res) => {
-    const {
-        questionId
-    } = req.params;
-    let questionList = new Array();
+app.get("/api/question/getQuestionById/:questionId", async (req, res) => {
     try {
-        questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
+        const {
+            questionId
+        } = req.params;
+
+        let question;
+
+        await QuestionModel.findById(questionId,function (err, questions) {
+            if (err) return console.error(err);
+            question = questions;
+        });
+
+        if (question) {
+            res.json(question);
+        } else {
+            res.json({
+                success: false,
+                message: "Question not found"
+            });
+        }
     } catch (error) {
-        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
     }
-    const question = questionList.filter(item => item.id == questionId)[0];
-    const totalVote = question.yes + question.no;
-    const yesByPercent = Math.round((question.yes) / totalVote * 100);
-    const noByPercent = 100 - yesByPercent;
-    res.send(`
-        <h1>${question.content}</h1>
-        <div>Tổng số lượt vote: ${totalVote}</div>
-        <div>Đúng/Có: ${yesByPercent} %</div>
-        <div>Sai/Không: ${noByPercent} %</div>
-        <div> <a href = "/"><button>Xem câu hỏi khác</button></a></div>
-    `);
+});
+
+app.put("/api/question", async (req, res) => {
+    try {
+        const {
+            questionId,
+            vote
+        } = req.body;
+
+        let question;
+
+        await QuestionModel.findById(questionId,function (err, questions) {
+            if (err) return console.error(err);
+            question = questions;
+        });
+
+        if (question != null) {
+            if (vote == 1) {
+                question.yes += 1;
+            } else if (vote == 0) {
+                question.no += 1;
+            } else {
+                console.log("Vote error");
+                res.json({
+                    success: false,
+                    message: "Invalid vote"
+                });
+            }
+        } else {
+            res.json({
+                success: false,
+                message: "Question not found"
+            })
+        }
+
+        await QuestionModel.findByIdAndUpdate(questionId, question, function(err){
+            if(err){
+                console.log(err.message);
+            }
+            console.log("Question updated");
+        });
+
+        console.log(result);
+        res.json({
+            success: true,
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            messgae: error.message
+        });
+    }
 })
-
-app.get("/ask", (req, res) => {
-    res.sendFile(__dirname + "/view/ask.html");
-});
-
-app.post("/addquestion", (req, res) => {
-    console.log("question posted");
-    console.log(req.body);
-    const {
-        questionContent
-    } = req.body;
-
-    let questionList = new Array();
-    try {
-        questionList = JSON.parse(fs.readFileSync("./data.json", "utf-8"));
-    } catch (error) {
-        console.log(error);
-    }
-
-    const question = {
-        id: questionList.length,
-        content: questionContent,
-        yes: 0,
-        no: 0
-    }
-    questionList.push(question);
-
-    fs.writeFileSync("./data.json", JSON.stringify(questionList));
-    res.send("Question added");
-});
 
 app.listen("8080", function (err) {
     if (err) {

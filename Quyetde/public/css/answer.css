@@ -1,0 +1,16 @@
+.question-content {
+    text-align: center;
+  }
+  
+  .total-vote {
+    text-align: center;
+  }
+  
+  .result-container {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .buttons-container {
+    text-align: center;
+  }
