@@ -1,0 +1,16 @@
+.header{
+    text-align: center;
+}
+.header-container{
+    position: relative;
+    background-color: #343a40;
+    background: url("../img/bg-masthead.jpg") no-repeat center center;
+    background-size: cover;
+    padding: 15% 0px;
+}
+.icon-container{
+    text-align: center;
+}
+.fas{
+    color:#2196F3;
+}
