@@ -102,7 +102,7 @@ app.get("/api/question/getQuestionById/:questionId", async (req, res) => {
         await QuestionModel.findById(questionId,function (err, questions) {
             if (err) return console.error(err);
             question = questions;
-        });
+        }).exec();
 
         if (question) {
             res.json(question);
@@ -132,7 +132,7 @@ app.put("/api/question", async (req, res) => {
         await QuestionModel.findById(questionId,function (err, questions) {
             if (err) return console.error(err);
             question = questions;
-        });
+        }).exec();
 
         if (question != null) {
             if (vote == 1) {
@@ -158,7 +158,7 @@ app.put("/api/question", async (req, res) => {
                 console.log(err.message);
             }
             console.log("Question updated");
-        });
+        }).exec();
 
         console.log(result);
         res.json({
