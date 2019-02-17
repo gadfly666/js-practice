@@ -1,0 +1,22 @@
+html * {
+    background-color: #FBFEF9;
+}
+
+.add-round-btn{
+    background-color:#BF1363;
+    color: #FBFEF9;
+}
+
+.sum-row td{
+    background-color:#BF1363 ;
+    color: #FBFEF9;
+}
+
+.sum-head{
+    background-color:#BF1363;
+    color: #FBFEF9;
+}
+
+table{
+    border-bottom: 1px outset #BF1363;
+}
